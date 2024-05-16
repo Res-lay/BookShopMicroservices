@@ -3,11 +3,13 @@ package com.bookshop.orderservice.service;
 import com.bookshop.orderservice.dto.InventoryResponse;
 import com.bookshop.orderservice.dto.OrderLineItemsDto;
 import com.bookshop.orderservice.dto.OrderRequest;
+import com.bookshop.orderservice.event.OrderPlacedEvent;
 import com.bookshop.orderservice.model.Order;
 import com.bookshop.orderservice.model.OrderLineItems;
 import com.bookshop.orderservice.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -24,8 +26,9 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final WebClient.Builder webClientBuilder;
+    private final KafkaTemplate<String, OrderPlacedEvent> kafkaTemplate;
 
-    public void placeOrder(OrderRequest orderRequest) {
+    public String placeOrder(OrderRequest orderRequest) {
         Order order = new Order();
         order.setOrderNumber(UUID.randomUUID().toString());
 
@@ -50,7 +53,9 @@ public class OrderService {
 
         if (allProductsInStock) {
             orderRepository.save(order);
+            kafkaTemplate.send("notificationTopic", new OrderPlacedEvent(order.getOrderNumber(), "ivanlatysheff@gmail.com"));
             log.info("New order with id={} was placed", order.getId());
+            return "New order was placed successfully";
         } else {
             throw new IllegalArgumentException("Product is not in stock, please try again later");
         }

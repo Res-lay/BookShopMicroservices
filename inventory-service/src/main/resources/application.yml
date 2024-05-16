@@ -9,8 +9,10 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
+
 server:
   port: 0
+
 eureka:
   instance:
     prefer-ip-address: true
