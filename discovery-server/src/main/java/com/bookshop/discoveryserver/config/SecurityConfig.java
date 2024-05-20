@@ -1,5 +1,6 @@
 package com.bookshop.discoveryserver.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -16,6 +17,12 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @EnableWebSecurity
 public class SecurityConfig{
 
+    @Value("${client.username}")
+    private String username;
+
+    @Value("${client.password}")
+    private String password;
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -31,8 +38,8 @@ public class SecurityConfig{
     public InMemoryUserDetailsManager userDetailsService() {
         //todo: Add normal password encoder
         UserDetails user = User.withDefaultPasswordEncoder()
-                .username("eureka")
-                .password("password")
+                .username(username)
+                .password(password)
                 .roles("USER")
                 .build();
         return new InMemoryUserDetailsManager(user);

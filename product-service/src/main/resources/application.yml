@@ -2,9 +2,26 @@ spring:
   application:
     name: product-service
 
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8181/realms/dive-dev
+
   data:
     mongodb:
       uri: mongodb://localhost:27017/product-service
+
+openapi:
+  service:
+    title: product-service doc
+    version: 1.0.0
+    url: http://localhost:8080
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /product-service/swagger-ui.html
 
 eureka:
   instance:

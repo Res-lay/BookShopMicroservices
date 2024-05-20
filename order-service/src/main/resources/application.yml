@@ -27,6 +27,18 @@ spring:
 server:
   port: 8081
 
+
+openapi:
+  service:
+    title: order-service doc
+    version: 1.0.0
+    url: http://localhost:8080
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /order-service/swagger-ui.html
+
 eureka:
   instance:
     prefer-ip-address: true

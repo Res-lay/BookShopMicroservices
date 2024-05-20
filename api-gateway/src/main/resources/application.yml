@@ -26,12 +26,54 @@ spring:
           uri: http://localhost:8761
           predicates:
             - Path=/eureka/**
+        ## Swagger
+        - id: product-service-swagger
+          uri: lb://product-service
+          predicates:
+            - Path=/product-service/v3/api-docs
+            - Method=GET
+        - id: order-service-swagger
+          uri: lb://product-service
+          predicates:
+            - Path=/order-service/v3/api-docs
+            - Method=GET
+        - id: inventory-service-swagger
+          uri: lb://inventory-service
+          predicates:
+            - Path=/inventory-service/v3/api-docs
+            - Method=GET
+        - id: user-service-swagger
+          uri: http://localhost:8180
+          predicates:
+            - Path=/user-service/v3/api-docs
+            - Method=GET
+
+
+
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+
+
   security:
     oauth2:
+      client:
+        registration:
+          keycloak:
+            #            client-id: spring-cloud-client
+            authorization-grant-type: authorization_code
+            scope:
+              - openid
+        provider:
+          keycloak:
+            issuer-uri: http://localhost:8181/realms/dive-dev
+            user-name-attribute: preferred_username
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:8181/realms/spring-boot-microservices-realm
+          issuer-uri: http://localhost:8181/realms/dive-dev
           jwk-set-uri: ${spring.security.oauth2.resourceserver.jwt.issuer-uri}/protocol/openid-connect/certs
+
 
 
 eureka:
@@ -43,11 +85,34 @@ eureka:
     serviceUrl:
       defaultZone: http://eureka:password@localhost:8761/eureka
 
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    oauth:
+      client-id: springboot-be
+      client-secret: b3URSNl3vxNR19kUZs7eZbwIKo6XQEcj
+    enabled: true
+    path: /swagger-ui.html
+    config-url: /v3/api-docs/swagger-config
+    urls:
+      - url: /v3/api-docs
+        name: API Gateway Service
+      - url: /product-service/v3/api-docs
+        name: Product Service
+      - url: /order-service/v3/api-docs
+        name: Order Service
+      - url: /inventory-service/v3/api-docs
+        name: Inventory Service
+      - url: /user-service/v3/api-docs
+        name: User Service
+
 logging:
   level:
     org:
       springframework:
         cloud:
+          gateway=DEBUG:
           gateway: TRACE
           route:
             RouteDefinitionLocator: INFO

@@ -11,3 +11,9 @@ eureka:
     fetch-registry: false
   instance:
     hostname: localhost
+
+
+
+client:
+  username: eureka
+  password: password
