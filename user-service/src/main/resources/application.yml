@@ -1,7 +1,14 @@
 spring:
   application:
     name: user-service
-
+  datasource:
+    url: jdbc:postgresql://localhost:5432/MicroservicesTestDB
+    username: postgres
+    password: password
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
   security:
     oauth2:
       client:
@@ -19,14 +26,6 @@ spring:
         jwt:
           issuer-uri: http://localhost:8181/realms/dive-dev
           jwk-set-uri: ${spring.security.oauth2.resourceserver.jwt.issuer-uri}/protocol/openid-connect/certs
-
-
-realm: dive-dev
-server-url: http://localhost:8181
-client-id: admin-cli
-grant-type: password
-username: admin
-password: admin
 
 openapi:
   service:
@@ -46,3 +45,12 @@ springdoc:
 
 server:
   port: 8180
+
+
+
+realm: dive-dev
+server-url: http://localhost:8181
+client-id: admin-cli
+grant-type: password
+username: admin
+password: admin
