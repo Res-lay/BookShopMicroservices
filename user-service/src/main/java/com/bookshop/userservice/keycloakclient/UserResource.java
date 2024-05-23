@@ -2,12 +2,12 @@ package com.bookshop.userservice.keycloakclient;
 
 import com.bookshop.userservice.dto.UserDto;
 import com.bookshop.userservice.security.KeycloakSecurityUtil;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.common.util.CollectionUtil;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -20,22 +20,26 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
+@RequiredArgsConstructor
 public class UserResource {
-    @Autowired
-    private KeycloakSecurityUtil keycloakSecurityUtil;
 
-    @Value("${realm}")
+    private final Keycloak keycloak;
+
+    @Value("${keycloak.realm}")
     private String realm;
 
-    public List<UserDto> getUsers(){
-        Keycloak keycloak = keycloakSecurityUtil.getKeycloakInstance();
-        List<UserRepresentation> userRepresentations = keycloak.realm(realm).users().list();
-        return mapUsers(userRepresentations);
+
+    public List<UserDto> getUsers() {
+        try {
+            List<UserRepresentation> userRepresentations = keycloak.realm(realm).users().list();
+            return mapUsers(userRepresentations);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
-    public ResponseEntity<?> createUser(UserDto userDto){
+    public ResponseEntity<?> createUser(UserDto userDto) {
         UserRepresentation userRepresentation = mapUserRepresentation(userDto);
-        Keycloak keycloak = keycloakSecurityUtil.getKeycloakInstance();
         keycloak.realm(realm).users().create(userRepresentation);
         return ResponseEntity.ok().body(userRepresentation);
     }
@@ -55,12 +59,11 @@ public class UserResource {
         credentialRepresentations.add(credentialRepresentation);
         userRepresentation.setCredentials(credentialRepresentations);
         return userRepresentation;
-
     }
 
     private List<UserDto> mapUsers(List<UserRepresentation> userRepresentations) {
         List<UserDto> userDtos = new ArrayList<>();
-        if (CollectionUtil.isNotEmpty(userRepresentations)){
+        if (CollectionUtil.isNotEmpty(userRepresentations)) {
             userRepresentations.forEach(userRepresentation -> {
                 userDtos.add(mapUser(userRepresentation));
             });

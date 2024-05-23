@@ -14,7 +14,6 @@ spring:
       client:
         registration:
           keycloak:
-            #            client-id: spring-cloud-client
             authorization-grant-type: authorization_code
             scope:
               - openid
@@ -47,10 +46,20 @@ server:
   port: 8180
 
 
+keycloak:
+  realm: dive-dev
+  server-url: http://localhost:8181
+  client-id: admin-cli
+  client-secret: wZGVNwtGFbm8pzfkSToG9CISS9eigzsy
+  grant-type: password
+  username: admin
+  password: 123
 
-realm: dive-dev
-server-url: http://localhost:8181
-client-id: admin-cli
-grant-type: password
-username: admin
-password: admin
+eureka:
+  instance:
+    prefer-ip-address: true
+    instanceId: ${spring.application.name}:${random.value}
+    hostname: localhost
+  client:
+    serviceUrl:
+      defaultZone: http://eureka:password@localhost:8761/eureka

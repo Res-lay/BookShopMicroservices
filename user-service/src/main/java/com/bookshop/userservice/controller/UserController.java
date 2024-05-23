@@ -1,7 +1,6 @@
 package com.bookshop.userservice.controller;
 
 import com.bookshop.userservice.dto.UserDto;
-import com.bookshop.userservice.keycloakclient.UserResource;
 import com.bookshop.userservice.models.User;
 import com.bookshop.userservice.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/user-service")
 @RequiredArgsConstructor
 public class UserController {
 
@@ -32,4 +31,7 @@ public class UserController {
     public User getUsers(@PathVariable Long id){
         return userService.getUser(id);
     }
+
+
+
 }

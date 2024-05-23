@@ -6,6 +6,7 @@ import com.bookshop.userservice.models.User;
 import com.bookshop.userservice.repos.UserRepo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,16 +19,15 @@ public class UserService {
     private final UserRepo userRepo;
     private final UserResource userResource;
 
-    public void createUser(UserDto userDto){
+    public ResponseEntity<?> createUser(UserDto userDto){
         User user = User.builder()
                 .username(userDto.getUsername())
                 .email(userDto.getEmail())
                 .firstname(userDto.getFirstName())
                 .lastname(userDto.getLastName())
                 .build();
-        userResource.createUser(userDto);
         userRepo.save(user);
-        log.info("New user id={} created", user.getId());
+        return userResource.createUser(userDto);
     }
 
     public User getUser(Long id){

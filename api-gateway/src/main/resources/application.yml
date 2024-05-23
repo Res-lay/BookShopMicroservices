@@ -26,6 +26,13 @@ spring:
           uri: http://localhost:8761
           predicates:
             - Path=/eureka/**
+        ## User Service login/register Route
+        - id: user-service
+          uri: http://localhost:8180
+          predicates:
+            - Path=/user/{segment}
+          filters:
+            - SetPath=/api/v1/user-service/user/{segment}
         ## Swagger
         - id: product-service-swagger
           uri: lb://product-service
@@ -42,11 +49,11 @@ spring:
           predicates:
             - Path=/inventory-service/v3/api-docs
             - Method=GET
-        - id: user-service-swagger
-          uri: http://localhost:8180
-          predicates:
-            - Path=/user-service/v3/api-docs
-            - Method=GET
+#        - id: user-service-swagger
+#          uri: http://localhost:8180
+#          predicates:
+#            - Path=/user-service/v3/api-docs
+#            - Method=GET
 
 
 
@@ -54,14 +61,11 @@ spring:
         locator:
           enabled: true
           lower-case-service-id: true
-
-
   security:
     oauth2:
       client:
         registration:
           keycloak:
-            #            client-id: spring-cloud-client
             authorization-grant-type: authorization_code
             scope:
               - openid
@@ -116,3 +120,9 @@ logging:
           gateway: TRACE
           route:
             RouteDefinitionLocator: INFO
+
+
+keycloak:
+  client_id: springboot-be
+  client_secret: b3URSNl3vxNR19kUZs7eZbwIKo6XQEcj
+  grant_type: password
