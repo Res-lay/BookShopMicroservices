@@ -56,11 +56,10 @@ public class OrderService {
             Object principal = authentication.getPrincipal();
             Jwt jwt = (Jwt) principal;
             String userEmail = jwt.getClaimAsString("email");
-            kafkaTemplate.send("notificationTopic", new OrderPlacedEvent(order.getOrderNumber(), userEmail));
-            log.info("Notification sent for order id: {}", order.getId());
+            kafkaTemplate.send("notificationTopic", new OrderPlacedEvent(jwt.getClaimAsString("name"),
+                    userEmail, orderLineItems));
             return "New order was placed successfully";
         } else {
-            log.warn("Product is not in stock");
             throw new IllegalArgumentException("Product is not in stock, please try again later");
         }
     }
