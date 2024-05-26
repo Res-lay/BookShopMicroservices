@@ -10,6 +10,9 @@ import com.bookshop.orderservice.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -28,10 +31,8 @@ public class OrderService {
     private final WebClient.Builder webClientBuilder;
     private final KafkaTemplate<String, OrderPlacedEvent> kafkaTemplate;
 
-    public String placeOrder(OrderRequest orderRequest) {
+    public String placeOrder(OrderRequest orderRequest, Authentication authentication) {
         Order order = new Order();
-        order.setOrderNumber(UUID.randomUUID().toString());
-
         List<OrderLineItems> orderLineItems = orderRequest.getOrderLineItemsDtoList()
                 .stream()
                 .map(this::mapToOrderLineItems).toList();
@@ -48,21 +49,21 @@ public class OrderService {
                 .bodyToMono(InventoryResponse[].class)
                 .block();
 
-
         boolean allProductsInStock = Arrays.stream(inventoryResponses).allMatch(InventoryResponse::getIsInStock);
 
         if (allProductsInStock) {
             orderRepository.save(order);
-            kafkaTemplate.send("notificationTopic", new OrderPlacedEvent(order.getOrderNumber(), "ivanlatysheff@gmail.com"));
-            log.info("New order with id={} was placed", order.getId());
+            Object principal = authentication.getPrincipal();
+            Jwt jwt = (Jwt) principal;
+            String userEmail = jwt.getClaimAsString("email");
+            kafkaTemplate.send("notificationTopic", new OrderPlacedEvent(order.getOrderNumber(), userEmail));
+            log.info("Notification sent for order id: {}", order.getId());
             return "New order was placed successfully";
         } else {
+            log.warn("Product is not in stock");
             throw new IllegalArgumentException("Product is not in stock, please try again later");
         }
     }
-
-    //todo: deleteOrder
-    //todo: changeOrder
 
     private OrderLineItems mapToOrderLineItems(OrderLineItemsDto orderLineItemsDto) {
         OrderLineItems orderLineItems = new OrderLineItems();
@@ -73,5 +74,9 @@ public class OrderService {
         return orderLineItems;
     }
 
-
+    //todo: deleteOrder
+    //todo: changeOrder
+    public List<Order> getAll() {
+        return orderRepository.findAll();
+    }
 }

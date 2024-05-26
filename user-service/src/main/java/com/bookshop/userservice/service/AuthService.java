@@ -4,11 +4,9 @@ import com.bookshop.userservice.dto.AuthRequest;
 import com.bookshop.userservice.dto.AuthResponse;
 import com.bookshop.userservice.dto.UserDto;
 import com.bookshop.userservice.keycloakclient.UserResource;
-import com.bookshop.userservice.repos.UserRepo;
 import lombok.RequiredArgsConstructor;
-import org.apache.http.client.HttpResponseException;
+import lombok.extern.slf4j.Slf4j;
 import org.keycloak.authorization.client.AuthzClient;
-import org.keycloak.authorization.identity.Identity;
 import org.keycloak.representations.idm.authorization.AuthorizationRequest;
 import org.keycloak.representations.idm.authorization.AuthorizationResponse;
 import org.springframework.http.ResponseEntity;
@@ -16,10 +14,12 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthService {
 
     private final UserResource userResource;
     private final UserService userService;
+
     private final AuthzClient authzClient = AuthzClient.create();
 
     public AuthResponse authorize(AuthRequest authRequest){
@@ -38,6 +38,8 @@ public class AuthService {
 
     public ResponseEntity<?> register(UserDto userDto){
         userResource.createUser(userDto);
+        userResource.sendVerificationMail(userDto);
+        log.info("verification email sent");
         return userService.createUser(userDto);
     }
 }

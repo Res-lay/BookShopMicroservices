@@ -20,6 +20,7 @@ public class InventoryController {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<InventoryResponse> isInStock(@RequestParam("skuCode") List<String> skuCode){
+        System.out.println(skuCode.toString());
         return inventoryService.isInStock(skuCode);
     }
 
@@ -27,5 +28,11 @@ public class InventoryController {
     @ResponseStatus(HttpStatus.CREATED)
     public void setInventoryItem(@RequestBody InventoryRequest inventoryRequest) {
         inventoryService.setInventoryItem(inventoryRequest);
+    }
+
+    @PutMapping
+    @ResponseStatus(HttpStatus.OK)
+    public void reduceInventoryItemQuantity(List<InventoryRequest> requests){
+        inventoryService.reduceQuantity(requests);
     }
 }

@@ -1,20 +1,16 @@
 package com.bookshop.userservice.keycloakclient;
 
 import com.bookshop.userservice.dto.UserDto;
-import com.bookshop.userservice.security.KeycloakSecurityUtil;
+import com.bookshop.userservice.models.User;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.keycloak.admin.client.Keycloak;
+import org.keycloak.admin.client.resource.UsersResource;
 import org.keycloak.common.util.CollectionUtil;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,7 +47,8 @@ public class UserResource {
         userRepresentation.setLastName(userDto.getLastName());
         userRepresentation.setEmail(userDto.getEmail());
         userRepresentation.setEnabled(true);
-        userRepresentation.setEmailVerified(true);
+        userRepresentation.setEmailVerified(false);
+        userRepresentation.setRequiredActions(List.of("VERIFY_EMAIL"));
         List<CredentialRepresentation> credentialRepresentations = new ArrayList<>();
         CredentialRepresentation credentialRepresentation = new CredentialRepresentation();
         credentialRepresentation.setTemporary(false);
@@ -82,4 +79,9 @@ public class UserResource {
         return userDto;
     }
 
+    public void sendVerificationMail(UserDto userDto) {
+        UsersResource usersResource = keycloak.realm(realm).users();
+        List<UserRepresentation> users = keycloak.realm(realm).users().searchByEmail(userDto.getEmail(), true);
+        usersResource.get(users.get(0).getId()).sendVerifyEmail();
+    }
 }
