@@ -33,4 +33,9 @@ public class AuthController {
     public ResponseEntity<?> register(@RequestBody UserDto userDto){
         return authService.register(userDto);
     }
+
+    @PostMapping("/logout")
+    public String logout(@RequestParam String userEmail){
+        return authService.logout(userEmail);
+    }
 }

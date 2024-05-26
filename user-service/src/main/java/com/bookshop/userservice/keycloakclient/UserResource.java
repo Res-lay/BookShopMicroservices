@@ -34,6 +34,11 @@ public class UserResource {
         }
     }
 
+    public void logout(String email){
+        List<UserRepresentation> users = keycloak.realm(realm).users().searchByEmail(email, true);
+        keycloak.realm(realm).users().get(users.get(0).getId()).logout();
+    }
+
     public ResponseEntity<?> createUser(UserDto userDto) {
         UserRepresentation userRepresentation = mapUserRepresentation(userDto);
         keycloak.realm(realm).users().create(userRepresentation);

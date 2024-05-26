@@ -42,4 +42,9 @@ public class AuthService {
         log.info("verification email sent");
         return userService.createUser(userDto);
     }
+
+    public String logout(String email){
+        userResource.logout(email);
+        return "Successfully logout";
+    }
 }
